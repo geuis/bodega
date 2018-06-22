@@ -1,0 +1,11 @@
+{
+  "git.ignoreLimitWarning": true,
+  "javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": false,
+  "javascript.format.insertSpaceBeforeFunctionParenthesis": true,
+  "javascript.format.insertSpaceAfterConstructor": true,
+  "files.insertFinalNewline": true,
+  "eslint.autoFixOnSave": true,
+  "editor.rulers": [
+    80
+  ]
+}
