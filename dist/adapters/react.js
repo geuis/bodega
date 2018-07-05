@@ -24,6 +24,12 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var componentId = 0;
 
 var attach = exports.attach = function attach(AttachedComponent) {
+  var mapFromStore = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+
+  if (mapFromStore !== null && !Array.isArray(mapFromStore)) {
+    throw new Error('mapStore passed to "attach" must be an array');
+  }
+
   return function (_React$Component) {
     _inherits(Attached, _React$Component);
 
@@ -41,11 +47,16 @@ var attach = exports.attach = function attach(AttachedComponent) {
       key: 'componentDidMount',
       value: function componentDidMount() {
         _store.componentCache[this.id] = this.reRender.bind(this);
+
+        if (mapFromStore && mapFromStore.length > 0) {
+          _store.mapStoreCache[this.id] = mapFromStore;
+        }
       }
     }, {
       key: 'componentWillUnmount',
       value: function componentWillUnmount() {
         delete _store.componentCache[this.id];
+        delete _store.mapStoreCache[this.id];
       }
     }, {
       key: 'reRender',

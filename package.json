@@ -4,10 +4,11 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "babel src/ --out-dir dist/",
+    "dev": "babel src/ --out-dir dist/ --watch",
     "lint": "eslint .",
-    "prepare": "rm -rf ./dist && npm run build"
+    "prepare": "rm -rf ./dist && npm run build",
+    "test": "mocha test/*.spec.js -R spec"
   },
   "repository": {
     "type": "git",
@@ -27,6 +28,7 @@
     "eslint": "^4.19.1",
     "eslint-plugin-import": "^2.12.0",
     "eslint-plugin-react": "^7.9.1",
+    "mocha": "^5.2.0",
     "react": "^16.4.1"
   }
 }

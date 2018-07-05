@@ -9,7 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "bodega-store": "0.0.1",
     "react": "^16.4.0",
     "react-dom": "^16.4.0"
   },

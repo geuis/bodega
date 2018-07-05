@@ -1,12 +1,15 @@
-import {store} from 'bodega-store';
+import {extend} from 'bodega-store';
 
 const AppStore = () => {
   const state = {
     currentTime: (new Date()).toISOString(),
-    todosList: []
+    todosList: [],
+    deepObject: {
+      test: {a: 123}
+    }
   };
 
-  store.update = state;
+  extend(state);
 };
 
 export default AppStore;

@@ -11,7 +11,8 @@ class TodoItem extends React.Component {
   }
 
   completeTodo () {
-    const todosList = [...store.todosList];
+    // returns a deep copy
+    const todosList = store.todosList;
 
     todosList[this.props.index].completed = true;
 
@@ -19,7 +20,7 @@ class TodoItem extends React.Component {
   }
 
   deleteTodo () {
-    const todosList = [...store.todosList];
+    const todosList = store.todosList;
 
     todosList.splice(this.props.index, 1);
 
@@ -29,7 +30,7 @@ class TodoItem extends React.Component {
   render () {
     return (
       <div className="todo-item">
-        <div className="text">{this.props.text}</div>
+        <div className="text">{this.props.text} {Math.random()}</div>
         <div className="completed">
           {this.props.completed ? 'Done' : 'Not done'}
         </div>

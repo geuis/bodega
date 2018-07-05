@@ -1,9 +1,13 @@
 import React from 'react';
-import {componentCache} from '../store';
+import {componentCache, mapStoreCache} from '../store';
 
 let componentId = 0;
 
-export const attach = (AttachedComponent) => {
+export const attach = (AttachedComponent, mapFromStore = null) => {
+  if (mapFromStore !== null && !Array.isArray(mapFromStore)) {
+    throw new Error('mapStore passed to "attach" must be an array');
+  }
+
   return class Attached extends React.Component {
     constructor (props, context) {
       super(props, context);
@@ -14,10 +18,15 @@ export const attach = (AttachedComponent) => {
 
     componentDidMount () {
       componentCache[this.id] = this.reRender.bind(this);
+
+      if (mapFromStore && mapFromStore.length > 0) {
+        mapStoreCache[this.id] = mapFromStore;
+      }
     }
 
     componentWillUnmount () {
       delete componentCache[this.id];
+      delete mapStoreCache[this.id];
     }
 
     reRender () {
