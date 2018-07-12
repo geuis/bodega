@@ -1,27 +1,91 @@
-
 // Proxy
 // getter/setter only detects top level property
 //   - setting sub property doesn't trigger setter
 // modifying arrays directly doesn't trigger setter
 
-// initially load properties via store.update = {} for each section of state
-// set store property 
-//   - if top level property (primitive, object, array) set directly
-//   - if array, clone array and modify, then set top level prop
-//   - if object, clone object and modify, then set top level prop
-// component should pass array of strings representing props to get from store
-//   - strings should be property names, can use dot notation
-// 
+// store is always deep frozen with Object.freeze.
+//   - enforces app code to always copy values
+// properties are always top level
+//   - primarily due to how getters work on objects and arrays
+//   - objects and arrays should always be copied entirely. When updating a
+//     property on an object, the entire object must be set.
 
 import {fastEqual} from './util/fast-deep-equal';
 
-const Proxy = window.Proxy || global.proxy || undefined;
+const Proxy = window.Proxy || global.Proxy || undefined;
 
 if (!Proxy) {
   throw new Error('Proxy is not supported in this environment.');
 }
 
 const isObject = (value) => value && value.constructor === Object;
+
+const deepFreeze = (obj) => {
+  if (Array.isArray(obj)) {
+    for (let i = obj.length; i--;) {
+      if (isObject(obj[i]) || Array.isArray(obj[i])) {
+        obj[i] = deepFreeze(obj[i]);
+      }
+    }
+
+    return Object.freeze(obj);
+  }
+
+  if (isObject(obj)) {
+    const keys = Object.keys(obj);
+
+    for (let i = keys.length; i--;) {
+      const key = keys[i];
+
+      if (isObject(obj[key]) || Array.isArray(obj[key])) {
+        obj[key] = deepFreeze(obj[key]);
+      }
+    }
+
+    return Object.freeze(obj);
+  }
+
+  if (obj && obj.constructor === Date) {
+    return new Date(obj);
+  }
+
+  return obj;
+};
+
+const deepUnfreeze = (obj) => {
+  if (Array.isArray(obj)) {
+    const newArray = [...obj];
+
+    for (let i = newArray.length; i--;) {
+      if (isObject(newArray[i]) || Array.isArray(newArray[i])) {
+        newArray[i] = deepUnfreeze(newArray[i]);
+      }
+    }
+
+    return newArray;
+  }
+
+  if (isObject(obj)) {
+    const newObject = Object.assign({}, obj);
+    const keys = Object.keys(newObject);
+
+    for (let i = keys.length; i--;) {
+      const key = keys[i];
+
+      if (isObject(newObject[key]) || Array.isArray(newObject[key])) {
+        newObject[key] = deepUnfreeze(newObject[key]);
+      }
+    }
+
+    return newObject;
+  }
+
+  if (obj && obj.constructor === Date) {
+    return new Date(obj);
+  }
+
+  return obj;
+};
 
 const reRender = (nextState) => {
   for (const componentId in componentCache) {
@@ -31,98 +95,62 @@ const reRender = (nextState) => {
       mapStoreCache[componentId].length > 0
     ) {
       for (let i = mapStoreCache[componentId].length; i--;) {
-        const properties = mapStoreCache[componentId][i].split('.');
-
-        // since setters only use the top level property, simple check here
-        if (properties[0] in nextState) {
+        if (mapStoreCache[componentId][i] in nextState) {
           componentCache[componentId]();
+          // don't need to re-render again after first property change detected
+          break;
         }
       }
     }
   }
 };
 
-let storeState = {};
-
 export const componentCache = {};
 
 export const mapStoreCache = {};
 
-// if property is an object or array, return a copy
-const copy = (value) => {
-  const valueIsObject = isObject(value);
-  const valueIsArray = Array.isArray(value);
-
-  if (valueIsObject) {
-    const newValue = Object.assign({}, value);
-    const keys = Object.keys(newValue);
-
-    for (let i = keys.length; i--;) {
-      newValue[keys[i]] = copy(newValue[keys[i]]);
-    }
-
-    return newValue;
-  }
-
-  if (valueIsArray) {
-    const newValue = [...value];
-
-    for (let i = newValue.length; i--;) {
-      newValue[i] = copy(newValue[i])
-    }
-
-    return newValue;
-  }
-
-  if (value && value.constructor === Date) {
-    return new Date(value);
-  }
-
-  return value;
-}
-
-export const store = new Proxy(storeState, {
+export const store = new Proxy({}, {
   get: (target, name) => {
+    // `state` is a reserved property that returns an immutable copy of 
+    // the entire store.
     if (name === 'state') {
-      return copy(target);
+      return Object.freeze(Object.assign({}, target));
     }
 
-    // need to memoize this so every access doesn't generate a new copy
-
-    return copy(target[name]);
+    // NOTE: consider other data types that need special handling   
+    return deepUnfreeze(target[name]);
   },
-
   set: (target, name, value) => {
     if (name === 'state') {
-      throw new Error(
-        'The state property is protected. ' +
-        'Use "store.update" to update multiple properties.'
-      );
-    }
+      if (!isObject(value)) {
+        throw new Error('"state" property must be an object literal.');
+      }
 
-    const currentState = {
-      [name]: target[name]
-    };
-    const nextState = {
-      [name]: value
-    };
+      target = Object.assign(target, value);
 
-    if (fastEqual(currentState, nextState)) {
       return true;
     }
 
-    target[name] = value;
+    if (fastEqual(target[name], value)) {
+      return true;
+    }
 
-    reRender(nextState);
+    // NOTE: consider other data types that need special handling
+    target[name] = deepFreeze(value);
+
+    reRender({
+      [name]: target[name]
+    });
 
     return true;
   }
 });
 
+// helper for extending the store
 export const extend = (nextState) => {
   if (!isObject(nextState)) {
     throw new Error('"extend" argument must be an object literal.');
   }
 
-  storeState = Object.assign(storeState, nextState);
+  store.state = nextState;
 }

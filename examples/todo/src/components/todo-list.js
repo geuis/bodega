@@ -28,7 +28,7 @@ class TodoList extends React.Component {
 // pass an array of references that cause the component to re-render
 const mapFromStore = [
   'todosList',
-  'deepObject.test'
+  'deepObject'
 ];
 
 export default attach(TodoList, mapFromStore);
