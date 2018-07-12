@@ -1,5 +1,5 @@
 const assert = require('assert');
-const fastEqual = require('../dist/util/fast-deep-equal').default;
+const {fastEqual} = require('../dist/util/fast-deep-equal');
 const fastEqualTests = require('./fast-equal');
 
 describe('fastEqual', function () {
