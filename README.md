@@ -54,7 +54,6 @@ During application initialization, extend the store with your state via `extend`
     };
     
     export default AppStore;
-    
 
 Alternatively, you can set the state directly:
 
@@ -117,6 +116,12 @@ When the changes are complete, simply assign the updated copy back to the store 
 	
 The final assignment then triggers Bodega to perform a deep freeze on the updated state and re-render any subscribed components for that state property.
 
+### Async operations
+There are no special requirements for performing async operations with Bodega.
+
+For example, performing a remote fetch operation can happen anywhere in your application you want. All that you need to do when the operation is complete is to update the store with the new data.
+
+See in the Todo example app where the [current time is updated] (https://github.com/geuis/bodega/blob/master/examples/todo/src/components/app.js).
 
 ### Things to watch out for
 

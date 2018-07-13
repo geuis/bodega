@@ -30,7 +30,7 @@ class TodoItem extends React.Component {
   render () {
     return (
       <div className="todo-item">
-        <div className="text">{this.props.text} {Math.random()}</div>
+        <div className="text">{this.props.text}</div>
         <div className="completed">
           {this.props.completed ? 'Done' : 'Not done'}
         </div>

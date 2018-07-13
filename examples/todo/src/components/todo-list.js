@@ -10,8 +10,6 @@ class TodoList extends React.Component {
   render () {
     return (
       <div className="todo-list">
-        <div>{JSON.stringify(store.deepObject.test)}</div>
-
         {store.todosList.map((item, i) =>
           <TodoItem
             completed={item.completed}
