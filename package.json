@@ -1,9 +1,14 @@
 {
   "name": "bodega-store",
-  "version": "0.0.1",
-  "description": "State store for js, no boilerplate",  
+  "version": "0.0.2",
+  "description": "State store for js, no boilerplate",
   "keywords": [
-    "bodega", "bodega-store", "state", "store", "predictable", "react"
+    "bodega",
+    "bodega-store",
+    "state",
+    "store",
+    "predictable",
+    "react"
   ],
   "main": "dist/index.js",
   "scripts": {
