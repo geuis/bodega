@@ -1,6 +1,6 @@
 {
   "name": "bodega-store",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "State store for js, no boilerplate",
   "keywords": [
     "bodega",
