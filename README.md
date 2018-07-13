@@ -100,7 +100,14 @@ The `attach` adapter registers your component to re-render when properties it su
 
 ### Retrieving, modifying, and updating the store
 
-Working with the store is direct and simple. Any reference to a top level state property returns a mutable copy of that property. References to deep properties returns an immutable copy. 
+Working with the store is direct and simple. 
+
+To get a mutable copy of the entire state, access `store.state`.
+
+    // returns a mutable copy of the entire store state
+    const state = store.state;
+
+Any reference to a top level state property returns a mutable copy of that property. References to deep properties returns an immutable copy. 
 
     // returns a mutable copy of the user state
     const user = store.user;
@@ -108,7 +115,7 @@ Working with the store is direct and simple. Any reference to a top level state 
 Updates to the state are done on the copy.
 
     user.name = 'Bob Hope';
-	user.loggedIn = true;
+	  user.loggedIn = true;
 	
 When the changes are complete, simply assign the updated copy back to the store property.
 
@@ -132,13 +139,13 @@ Top level state properties are not protected from overwrites. This means that yo
     let userName = store.user.name;
     userName = 'Bob Smith';
     store.user = userName;
-	// store.user now returns 'Bob Smith' instead of the object originally representing the user state.
+	  // store.user now returns 'Bob Smith' instead of the object originally representing the user state.
 	
 Setting a deep property on a state won't throw an error, but the change will have no effect and no re-render will occur.
 
     // no error is thrown
     store.user.name = null;
-	store.user.loggedIn = false;
+	  store.user.loggedIn = false;
 	
     console.log(store.user);
 	// {

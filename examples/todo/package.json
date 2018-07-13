@@ -6,7 +6,7 @@
   "scripts": {
     "start": "webpack-dev-server --mode development"
   },
-  "author": "",
+  "author": "Charles Lawrence",
   "license": "ISC",
   "dependencies": {
     "react": "^16.4.0",

@@ -12,7 +12,8 @@
 
 import {fastEqual} from './util/fast-deep-equal';
 
-const Proxy = window.Proxy || global.Proxy || undefined;
+const Proxy = typeof window === 'object' && window.Proxy || 
+  typeof global === 'object' && global.Proxy || undefined;
 
 if (!Proxy) {
   throw new Error('Proxy is not supported in this environment.');
@@ -110,11 +111,14 @@ export const componentCache = {};
 export const mapStoreCache = {};
 
 export const store = new Proxy({}, {
+  // NOTE: consider cases of deleting properties, deleteProperty(target, prop)
+  // does reRender() need to happen?
+
   get: (target, name) => {
-    // `state` is a reserved property that returns an immutable copy of 
+    // `state` is a reserved property that returns a mutable copy of 
     // the entire store.
     if (name === 'state') {
-      return Object.freeze(Object.assign({}, target));
+      return deepUnfreeze(target);
     }
 
     // NOTE: consider other data types that need special handling   
@@ -126,6 +130,7 @@ export const store = new Proxy({}, {
         throw new Error('"state" property must be an object literal.');
       }
 
+      // might need to change this to iterate over "value" to deepFreeze
       target = Object.assign(target, value);
 
       return true;
